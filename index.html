@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>Fuel Deals</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+</head>
+
+<body>
+
+<h1>מערכת דלק חכמה</h1>
+
+<button onclick="loginGoogle()">התחבר עם גוגל</button>
+<button onclick="loginPhone()">התחבר עם SMS</button>
+
+<div id="recaptcha"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// התחברות גוגל
+function loginGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+    .then(result => {
+      sendUser(result.user);
+    });
+}
+
+// התחברות SMS
+function loginPhone() {
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha');
+
+  const phoneNumber = prompt("הכנס מספר טלפון");
+  const appVerifier = window.recaptchaVerifier;
+
+  auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+    .then(confirmationResult => {
+      const code = prompt("הכנס קוד SMS");
+      return confirmationResult.confirm(code);
+    })
+    .then(result => {
+      sendUser(result.user);
+    });
+}
+
+// שליחה לשרת
+function sendUser(user) {
+  fetch("http://localhost:3000/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: user.displayName || "No Name",
+      email: user.email || "",
+      phone: user.phoneNumber || ""
+    })
+  });
+}
+</script>
+
+</body>
+</html>
