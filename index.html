@@ -3,365 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HumFinder Pro - זיהוי שירים</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HumFinder - זיהוי שירים</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             color: #fff;
             overflow-x: hidden;
-            touch-action: manipulation;
         }
         
         .container {
-            max-width: 900px;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 20px;
         }
         
         header {
             text-align: center;
-            padding: 30px 0 15px;
+            padding: 30px 0 20px;
         }
         
         .logo {
             font-size: 2.5em;
             font-weight: 800;
-            background: linear-gradient(45deg, #00d2ff, #3a7bd5, #ff00cc);
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 8px;
         }
         
         .subtitle {
-            font-size: 1em;
             color: #a0a0a0;
-            font-weight: 300;
-        }
-        
-        .api-status {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8em;
             margin-top: 8px;
-            font-weight: 600;
-        }
-        
-        .api-status.online {
-            background: rgba(0, 255, 136, 0.15);
-            color: #00ff88;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
-        
-        .api-status.offline {
-            background: rgba(255, 71, 87, 0.15);
-            color: #ff4757;
-            border: 1px solid rgba(255, 71, 87, 0.3);
-        }
-        
-        .api-status.local {
-            background: rgba(254, 202, 87, 0.15);
-            color: #feca57;
-            border: 1px solid rgba(254, 202, 87, 0.3);
-        }
-        
-        .main-card {
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px 20px;
-            margin: 15px 0;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-        }
-        
-        .api-config {
-            background: rgba(0,0,0,0.2);
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .api-config h3 {
             font-size: 1em;
-            margin-bottom: 12px;
-            color: #00d2ff;
         }
         
-        .api-input-group {
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .mode-btns {
             display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #aaa;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .api-box {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .api-box.show {
+            display: block;
         }
         
         .api-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 12px 14px;
+            width: 100%;
+            padding: 12px 15px;
             border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             background: rgba(0,0,0,0.3);
             color: #fff;
-            font-size: 0.9em;
-            font-family: inherit;
-        }
-        
-        .api-input::placeholder {
-            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 10px;
         }
         
         .api-input:focus {
             outline: none;
-            border-color: #00d2ff;
+            border-color: #e94560;
         }
         
-        .btn-small {
-            padding: 10px 18px;
+        .save-btn {
+            width: 100%;
+            padding: 12px;
             border-radius: 10px;
             border: none;
-            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
             color: white;
             font-weight: 600;
+            font-size: 0.95em;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9em;
-            white-space: nowrap;
         }
         
-        .btn-small:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 210, 255, 0.3);
-        }
-        
-        .mic-container {
+        .mic-wrap {
             text-align: center;
-            margin: 25px 0;
-            user-select: none;
+            padding: 20px 0;
         }
         
-        .mic-button {
-            width: 130px;
-            height: 130px;
+        .mic-btn {
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(145deg, #00d2ff, #3a7bd5);
+            background: linear-gradient(145deg, #e94560, #c73e54);
             color: white;
             font-size: 3em;
             cursor: pointer;
-            box-shadow: 0 10px 40px rgba(0, 210, 255, 0.4);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4);
+            transition: all 0.3s;
             -webkit-touch-callout: none;
+            user-select: none;
         }
         
-        .mic-button:active {
-            transform: scale(0.95);
+        .mic-btn.recording {
+            animation: pulse 1.2s infinite;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a6f);
         }
         
-        .mic-button.recording {
-            animation: pulse-record 1.2s infinite;
-            background: linear-gradient(145deg, #ff00cc, #ff0066);
-            box-shadow: 0 10px 40px rgba(255, 0, 204, 0.5);
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7); }
+            70% { box-shadow: 0 0 0 30px rgba(233, 69, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0); }
         }
         
-        @keyframes pulse-record {
-            0% { box-shadow: 0 0 0 0 rgba(255, 0, 204, 0.7); }
-            70% { box-shadow: 0 0 0 30px rgba(255, 0, 204, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 0, 204, 0); }
-        }
-        
-        .status-text {
+        .status {
             margin-top: 15px;
             font-size: 1.1em;
-            color: #e0e0e0;
+            color: #ccc;
             min-height: 25px;
         }
         
-        .recording-timer {
-            font-size: 1.8em;
+        .timer {
+            font-size: 1.6em;
             font-weight: 700;
-            color: #00d2ff;
+            color: #e94560;
             margin-top: 8px;
-            font-variant-numeric: tabular-nums;
+            display: none;
         }
         
-        .visualizer {
+        .viz {
             width: 100%;
             height: 100px;
             margin: 15px 0;
             border-radius: 12px;
-            background: rgba(0,0,0,0.4);
-        }
-        
-        .debug-log {
             background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 12px;
-            margin: 15px 0;
-            font-size: 0.8em;
-            color: #888;
-            max-height: 150px;
-            overflow-y: auto;
-            font-family: monospace;
-            direction: ltr;
-            text-align: left;
         }
         
-        .debug-log .log-error { color: #ff6b81; }
-        .debug-log .log-success { color: #00ff88; }
-        .debug-log .log-info { color: #00d2ff; }
-        
-        .results-section {
-            display: none;
-            margin-top: 25px;
-        }
-        
-        .results-section.active {
-            display: block;
-            animation: fadeInUp 0.5s ease;
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .song-result {
-            background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(255, 0, 204, 0.05));
-            border-radius: 16px;
-            padding: 20px;
-            margin: 15px 0;
-            border: 1px solid rgba(0, 210, 255, 0.2);
-        }
-        
-        .song-header {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        
-        .album-art {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #00d2ff, #ff00cc);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            flex-shrink: 0;
-        }
-        
-        .song-details h2 {
-            font-size: 1.3em;
-            margin-bottom: 5px;
-            color: #fff;
-            line-height: 1.2;
-        }
-        
-        .song-details .artist {
-            font-size: 1em;
-            color: #00d2ff;
-        }
-        
-        .match-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 0.8em;
-            margin-top: 8px;
-        }
-        
-        .links-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        .link-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.85em;
-        }
-        
-        .link-btn.spotify { background: #1DB954; color: white; }
-        .link-btn.youtube { background: #FF0000; color: white; }
-        .link-btn.apple { background: #FA57C1; color: white; }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 22px;
-            border-radius: 10px;
-            border: none;
-            font-size: 0.95em;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex: 1;
-            justify-content: center;
-            min-width: 120px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
-        }
-        
-        .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        
-        .loading-spinner {
+        .loading {
             display: none;
             text-align: center;
             padding: 30px;
         }
         
-        .loading-spinner.active {
+        .loading.show {
             display: block;
         }
         
         .spinner {
             width: 50px;
             height: 50px;
-            border: 3px solid rgba(0, 210, 255, 0.1);
-            border-top-color: #00d2ff;
+            border: 3px solid rgba(233, 69, 96, 0.2);
+            border-top-color: #e94560;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
@@ -371,264 +196,286 @@
             to { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            color: #00d2ff;
-            font-size: 1em;
+        .results {
+            display: none;
+            margin-top: 20px;
         }
         
-        .error-box {
-            background: rgba(255, 71, 87, 0.1);
-            border: 1px solid rgba(255, 71, 87, 0.3);
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .song-card {
+            background: linear-gradient(135deg, rgba(233,69,96,0.15), rgba(15,52,96,0.2));
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(233,69,96,0.2);
+        }
+        
+        .song-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .song-artist {
+            color: #e94560;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .match-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .match-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #feca57);
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+        
+        .links {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .link-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: white;
+        }
+        
+        .link-btn.yt { background: #FF0000; }
+        .link-btn.sp { background: #1DB954; }
+        
+        .retry-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .error {
+            display: none;
+            background: rgba(255,71,87,0.1);
+            border: 1px solid rgba(255,71,87,0.3);
             border-radius: 10px;
             padding: 15px;
             margin: 15px 0;
             color: #ff6b81;
-            display: none;
         }
         
-        .error-box.active {
+        .error.show {
             display: block;
         }
         
-        .fallback-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-            padding: 10px;
-            background: rgba(255,255,255,0.03);
+        .tips {
+            background: rgba(254,202,87,0.08);
+            border-right: 3px solid #feca57;
+            padding: 12px 15px;
             border-radius: 8px;
-            font-size: 0.85em;
-        }
-        
-        .toggle-switch {
-            position: relative;
-            width: 40px;
-            height: 22px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 11px;
-            cursor: pointer;
-            transition: background 0.3s;
-            flex-shrink: 0;
-        }
-        
-        .toggle-switch.active {
-            background: #00d2ff;
-        }
-        
-        .toggle-switch::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
-        
-        .toggle-switch.active::after {
-            transform: translateX(-18px);
-        }
-        
-        .mode-selector {
-            display: flex;
-            gap: 8px;
             margin: 15px 0;
-            justify-content: center;
+            font-size: 0.9em;
+            color: #ddd;
         }
         
-        .mode-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.05);
-            color: #aaa;
-            font-size: 0.85em;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .mode-btn.active {
-            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-            color: white;
-            border-color: transparent;
+        .tips strong {
+            color: #feca57;
         }
         
         footer {
             text-align: center;
             padding: 30px 0;
             color: #555;
-            font-size: 0.8em;
-        }
-        
-        .api-info {
-            background: rgba(0, 210, 255, 0.05);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 8px;
-            font-size: 0.8em;
-            color: #888;
-            line-height: 1.5;
-        }
-        
-        .api-info a {
-            color: #00d2ff;
-            text-decoration: none;
-        }
-        
-        @media (max-width: 400px) {
-            .logo { font-size: 2em; }
-            .mic-button { width: 110px; height: 110px; font-size: 2.5em; }
-            .song-header { flex-direction: column; align-items: center; text-align: center; }
+            font-size: 0.85em;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo">🎵 HumFinder Pro</div>
-            <div class="subtitle">זיהוי שירים מתקדם</div>
-            <div class="api-status offline" id="apiStatus">● מצב מקומי</div>
+            <div class="logo">🎵 HumFinder</div>
+            <div class="subtitle">זמזם שיר – נזהה אותו</div>
         </header>
         
-        <div class="main-card">
-            <div class="mode-selector">
-                <button class="mode-btn active" id="modeLocal">🎵 מקומי</button>
-                <button class="mode-btn" id="modeAPI">🌐 API</button>
+        <div class="card">
+            <div class="mode-btns">
+                <button class="mode-btn active" id="btnLocal" onclick="setMode('local')">🎵 מקומי</button>
+                <button class="mode-btn" id="btnAPI" onclick="setMode('api')">🌐 API</button>
             </div>
             
-            <div class="api-config" id="apiConfig" style="display: none;">
-                <h3>🔑 הגדרות API</h3>
-                <div class="api-input-group">
-                    <input type="text" class="api-input" id="apiKey" placeholder="הכנס API Key...">
-                    <button class="btn-small" id="saveApiBtn">שמור</button>
-                </div>
-                <div class="api-info">
-                    💡 <strong>AudD:</strong> הירשם ב-<a href="https://dashboard.audd.io" target="_blank">dashboard.audd.io</a><br>
-                    💡 <strong>בדיקה:</strong> השתמש ב-"test" ל-3 זיהויים חינם
-                </div>
+            <div class="api-box" id="apiBox">
+                <input type="text" class="api-input" id="apiKeyInput" placeholder="API Key מ-AudD...">
+                <button class="save-btn" onclick="saveApiKey()">שמור API Key</button>
             </div>
             
-            <div class="mic-container">
-                <button class="mic-button" id="micBtn">🎤</button>
-                <div class="status-text" id="statusText">לחץ והחזק לזמזום</div>
-                <div class="recording-timer" id="recordingTimer" style="display: none;">0.0s</div>
+            <div class="tips">
+                <strong>💡 טיפ:</strong> התחל עם מצב מקומי – זה עובד בלי אינטרנט! זמזם Happy Birthday או Hava Nagila.
             </div>
             
-            <canvas class="visualizer" id="visualizer"></canvas>
-            
-            <div class="debug-log" id="debugLog" style="display: none;">
-                <div><strong>לוג פעולות:</strong></div>
+            <div class="mic-wrap">
+                <button class="mic-btn" id="micBtn" ontouchstart="startRec(event)" ontouchend="stopRec(event)" onmousedown="startRec(event)" onmouseup="stopRec(event)" onmouseleave="stopRec(event)">🎤</button>
+                <div class="status" id="status">לחץ והחזק לזמזום</div>
+                <div class="timer" id="timer">0.0s</div>
             </div>
             
-            <div class="loading-spinner" id="loadingSpinner">
+            <canvas class="viz" id="viz"></canvas>
+            
+            <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <div class="loading-text" id="loadingText">מעבד...</div>
+                <div style="color:#e94560">מעבד...</div>
             </div>
             
-            <div class="error-box" id="errorBox">
-                <strong>❌ שגיאה:</strong> <span id="errorText"></span>
+            <div class="error" id="errorBox">
+                <span id="errorText"></span>
             </div>
             
-            <div class="results-section" id="resultsSection">
+            <div class="results" id="results">
                 <div id="resultsList"></div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" id="retryBtn">🔄 נסה שוב</button>
-                </div>
+                <button class="retry-btn" onclick="reset()">🔄 נסה שוב</button>
             </div>
         </div>
         
         <footer>
-            <p>HumFinder Pro © 2026 | זיהוי מקומי + API</p>
+            <p>HumFinder © 2026 | זיהוי מקומי + API</p>
         </footer>
     </div>
 
     <script>
-        // ==================== לוג מובנה ====================
-        function log(msg, type = 'info') {
-            const debugLog = document.getElementById('debugLog');
-            const line = document.createElement('div');
-            line.className = 'log-' + type;
-            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            debugLog.appendChild(line);
-            debugLog.scrollTop = debugLog.scrollHeight;
-            console.log(`[${type}] ${msg}`);
+        // ========== מאגר שירים מקומי ==========
+        var DB = [
+            {t:"Happy Birthday",a:"מסורתי",p:[264,264,297,264,352,330,264,264,297,264,396,352,264,264,528,440,352,330,297,466,466,440,352,396,352],n:["C4","C4","D4","C4","F4","E4","C4","C4","D4","C4","G4","F4","C4","C4","C5","A4","F4","E4","D4","A#4","A#4","A4","F4","G4","F4"],tp:100},
+            {t:"Twinkle Twinkle",a:"Mozart",p:[262,262,392,392,440,440,392,349,349,330,330,294,294,262,392,392,349,349,330,330,294,392,392,349,349,330,330,294],n:["C4","C4","G4","G4","A4","A4","G4","F4","F4","E4","E4","D4","D4","C4","G4","G4","F4","F4","E4","E4","D4","G4","G4","F4","F4","E4","E4","D4"],tp:120},
+            {t:"Hava Nagila",a:"עממי ישראלי",p:[392,440,494,523,494,440,392,440,494,523,587,523,494,440,392,392,440,494,523,494,440,392,330,349,392,440,392,349,330,294,330,349,392,440,494,523,587,659,587,523,494,440,392],n:["G4","A4","B4","C5","B4","A4","G4","A4","B4","C5","D5","C5","B4","A4","G4","G4","A4","B4","C5","B4","A4","G4","E4","F4","G4","A4","G4","F4","E4","D4","E4","F4","G4","A4","B4","C5","D5","E5","D5","C5","B4","A4","G4"],tp:130},
+            {t:"Let It Be",a:"The Beatles",p:[262,294,330,262,392,349,330,294,262,294,330,262,440,392,349,330,294,262,294,330,349,330,294,262,294,330,349,392,440,392,349,330],n:["C4","D4","E4","C4","G4","F4","E4","D4","C4","D4","E4","C4","A4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","D4","E4","F4","G4","A4","G4","F4","E4"],tp:76},
+            {t:"Yesterday",a:"The Beatles",p:[330,349,392,440,392,349,330,294,262,247,262,294,330,349,330,294,330,349,392,440,392,349,330,349,392,440,494,523,494,440,392,349],n:["E4","F4","G4","A4","G4","F4","E4","D4","C4","B3","C4","D4","E4","F4","E4","D4","E4","F4","G4","A4","G4","F4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4"],tp:90},
+            {t:"Imagine",a:"John Lennon",p:[262,294,330,349,330,294,262,247,220,247,262,294,330,349,392,349,330,294,262,294,330,349,330,294,262,247,262,294,330,349,330,294],n:["C4","D4","E4","F4","E4","D4","C4","B3","A3","B3","C4","D4","E4","F4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","B3","C4","D4","E4","F4","E4","D4"],tp:75},
+            {t:"Despacito",a:"Luis Fonsi",p:[392,440,494,523,587,523,494,440,392,440,494,523,587,659,587,523,494,440,392,440,494,523,587,523,494,440,392,349,330,349,392,440],n:["G4","A4","B4","C5","D5","C5","B4","A4","G4","A4","B4","C5","D5","E5","D5","C5","B4","A4","G4","A4","B4","C5","D5","C5","B4","A4","G4","F4","E4","F4","G4","A4"],tp:89},
+            {t:"Hatikvah",a:"המנון ישראל",p:[262,294,330,349,330,294,262,247,220,247,262,294,330,349,330,294,262,294,330,349,392,349,330,294,262,294,330,294,262,247,262],n:["C4","D4","E4","F4","E4","D4","C4","B3","A3","B3","C4","D4","E4","F4","E4","D4","C4","D4","E4","F4","G4","F4","E4","D4","C4","D4","E4","D4","C4","B3","C4"],tp:80},
+            {t:"Yerushalayim",a:"נעמי שמר",p:[330,349,392,440,392,349,330,294,330,349,392,440,494,440,392,349,330,349,392,440,392,349,330,294,262,294,330,349,330,294,262,247],n:["E4","F4","G4","A4","G4","F4","E4","D4","E4","F4","G4","A4","B4","A4","G4","F4","E4","F4","G4","A4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","B3"],tp:72},
+            {t:"Für Elise",a:"Beethoven",p:[330,311,330,311,330,247,294,262,220,262,330,440,415,440,330,311,330,311,330,247,294,262,220,262,330,440,415,440],n:["E4","D#4","E4","D#4","E4","B3","D4","C4","A3","C4","E4","A4","G#4","A4","E4","D#4","E4","D#4","E4","B3","D4","C4","A3","C4","E4","A4","G#4","A4"],tp:70},
+            {t:"Ode to Joy",a:"Beethoven",p:[330,330,349,392,392,349,330,294,262,262,294,330,330,294,294,330,330,349,392,392,349,330,294,262,262,294,330,294,262,262],n:["E4","E4","F4","G4","G4","F4","E4","D4","C4","C4","D4","E4","E4","D4","D4","E4","E4","F4","G4","G4","F4","E4","D4","C4","C4","D4","E4","D4","C4","C4"],tp:120},
+            {t:"Jingle Bells",a:"James Pierpont",p:[330,330,330,330,330,330,330,392,262,294,330,349,349,349,349,349,330,330,330,294,294,330,294,392],n:["E4","E4","E4","E4","E4","E4","E4","G4","C4","D4","E4","F4","F4","F4","F4","F4","E4","E4","E4","D4","D4","E4","D4","G4"],tp:140},
+            {t:"Bella Ciao",a:"איטלקי",p:[330,349,392,440,392,349,330,294,330,349,392,440,494,440,392,349,330,349,392,440,392,349,330,294,262,294,330,349,330,294,262,247],n:["E4","F4","G4","A4","G4","F4","E4","D4","E4","F4","G4","A4","B4","A4","G4","F4","E4","F4","G4","A4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","B3"],tp:125},
+            {t:"Smoke on Water",a:"Deep Purple",p:[392,466,523,392,466,523,392,466,523,554,587,554,523,466,392],n:["G4","A#4","C5","G4","A#4","C5","G4","A#4","C5","C#5","D5","C#5","C5","A#4","G4"],tp:110},
+            {t:"Seven Nation Army",a:"White Stripes",p:[330,330,349,330,294,262,392,392,349,330,294,262,330,330,349,330],n:["E4","E4","F4","E4","D4","C4","G4","G4","F4","E4","D4","C4","E4","E4","F4","E4"],tp:120},
+            {t:"Eye of the Tiger",a:"Survivor",p:[262,294,330,392,330,294,262,294,330,392,440,392,330,294,262,294],n:["C4","D4","E4","G4","E4","D4","C4","D4","E4","G4","A4","G4","E4","D4","C4","D4"],tp:109},
+            {t:"We Will Rock You",a:"Queen",p:[330,330,330,392,392,440,440,392,349,349,330,330,294,294,330,330],n:["E4","E4","E4","G4","G4","A4","A4","G4","F4","F4","E4","E4","D4","D4","E4","E4"],tp:81},
+            {t:"Shape of You",a:"Ed Sheeran",p:[330,349,330,294,262,294,330,349,392,349,330,294,330,349,330,294],n:["E4","F4","E4","D4","C4","D4","E4","F4","G4","F4","E4","D4","E4","F4","E4","D4"],tp:96},
+            {t:"Bad Romance",a:"Lady Gaga",p:[330,330,392,392,440,440,392,349,349,330,330,294,294,330,330,392],n:["E4","E4","G4","G4","A4","A4","G4","F4","F4","E4","E4","D4","D4","E4","E4","G4"],tp:119},
+            {t:"YMCA",a:"Village People",p:[392,392,330,330,262,262,392,392,330,330,262,262,294,294,330,349],n:["G4","G4","E4","E4","C4","C4","G4","G4","E4","E4","C4","C4","D4","D4","E4","F4"],tp:127}
+        ];
+        
+        // ========== משתנים ==========
+        var ctx = null;
+        var analyser = null;
+        var mic = null;
+        var recorder = null;
+        var chunks = [];
+        var recording = false;
+        var startTime = 0;
+        var animId = null;
+        var mode = 'local';
+        var apiKey = localStorage.getItem('hf_api') || '';
+        
+        // ========== אלמנטים ==========
+        var micBtn = document.getElementById('micBtn');
+        var status = document.getElementById('status');
+        var timer = document.getElementById('timer');
+        var viz = document.getElementById('viz');
+        var vctx = viz.getContext('2d');
+        var loading = document.getElementById('loading');
+        var results = document.getElementById('results');
+        var resultsList = document.getElementById('resultsList');
+        var errorBox = document.getElementById('errorBox');
+        var errorText = document.getElementById('errorText');
+        var apiBox = document.getElementById('apiBox');
+        var apiKeyInput = document.getElementById('apiKeyInput');
+        
+        // ========== אתחול ==========
+        function init() {
+            viz.width = viz.offsetWidth;
+            viz.height = viz.offsetHeight;
+            if (apiKey) apiKeyInput.value = apiKey;
         }
         
-        // ==================== משתנים ====================
-        let audioContext = null;
-        let analyser = null;
-        let microphone = null;
-        let mediaRecorder = null;
-        let recordedChunks = [];
-        let isRecording = false;
-        let recordingStartTime = 0;
-        let animationId = null;
-        let currentMode = 'local';
-        let apiKey = localStorage.getItem('humfinder_api_key') || '';
+        // ========== מצב ==========
+        function setMode(m) {
+            mode = m;
+            document.getElementById('btnLocal').classList.toggle('active', m === 'local');
+            document.getElementById('btnAPI').classList.toggle('active', m === 'api');
+            apiBox.classList.toggle('show', m === 'api');
+        }
         
-        // ==================== מאגר מקומי ====================
-        const LOCAL_DB = [
-            {
-                title: "Happy Birthday",
-                artist: "שיר מסורתי",
-                notes: ["C4", "C4", "D4", "C4", "F4", "E4", "C4", "C4", "D4", "C4", "G4", "F4"],
-                pattern: [262, 262, 294, 262, 349, 330, 262, 262, 294, 262, 392, 349],
-                tempo: 100
-            },
-            {
-                title: "Twinkle Twinkle",
-                artist: "Mozart",
-                notes: ["C4", "C4", "G4", "G4", "A4", "A4", "G4", "F4", "F4", "E4", "E4", "D4", "D4", "C4"],
-                pattern: [262, 262, 392, 392, 440, 440, 392, 349, 349, 330, 330, 294, 294, 262],
-                tempo: 120
-            },
-            {
-                title: "Hava Nagila",
-                artist: "עממי ישראלי",
-                notes: ["G4", "A4", "B4", "C5", "B4", "A4", "G4", "A4", "B4", "C5", "D5", "C5", "B4", "A4", "G4"],
-                pattern: [392, 440, 494, 523, 494, 440, 392, 440, 494, 523, 587, 523, 494, 440, 392],
-                tempo: 130
-            },
-            {
-                title: "Let It Be",
-                artist: "The Beatles",
-                notes: ["C4", "D4", "E4", "C4", "G4", "F4", "E4", "D4", "C4", "D4", "E4", "C4", "A4", "G4", "F4", "E4"],
-                pattern: [262, 294, 330, 262, 392, 349, 330, 294, 262, 294, 330, 262, 440, 392, 349, 330],
-                tempo: 76
-            },
-            {
-                title: "Yesterday",
-                artist: "The Beatles",
-                notes: ["E4", "F4", "G4", "A4", "G4", "F4", "E4", "D4", "C4", "B3", "C4", "D4", "E4", "F4", "E4", "D4"],
-                pattern: [330, 349, 392, 440, 392, 349, 330, 294, 262, 247, 262, 294, 330, 349, 330, 294],
-                tempo: 90
-            },
-            {
-                title: "Imagine",
-                artist: "John Lennon",
-                notes: ["C4", "D4", "E4", "F4", "E4", "D4", "C4", "B3", "A3", "B3", "C4", "D4", "E4", "F4", "G4", "F4"],
-                pattern: [262, 294, 330, 349, 330, 294, 262, 247, 220, 247, 262, 294, 330, 349, 392, 349],
-                tempo: 75
-            },
-            {
-                title: "Despacito",
-                artist: "Luis Fonsi",
-                notes: ["G4", "A4", "B4", "C5", "D5", "C5", "B4", "A4", "G4", "A4", "B4", "C5", "D5", "E5", "D5", "C5"],
-                pattern: [392, 440, 494, 523, 587, 523, 494, 440, 392, 440, 494, 523, 587, 659, 587, 523],
-                tempo: 89
-            },
-            {
-                title: "Hatikvah",
-                artist: "המנון ישראל",
-                notes: ["C4", "D4", "E4", "F4", "E4", "D4", "C4", "B3", "A3", "B3", "C4", "D4", "E4", "F4", "E4", "D4"],
-                pattern: [262, 294, 330, 349, 330, 294, 262, 247, 220, 247, 262, 294, 330, 349, 330, 294],
-                tempo: 80
-            },
-            {
-                title: "Yerushalayim Shel Zahav",
-                artist: "נעמי שמר",
-                notes: ["E4", "F4", "G4", "A4", "G4", "F4", "E4", "D4", "E4", "F4", "G4", "A4", "B4", "A4", "G4", 
+        function saveApiKey() {
+            var key = apiKeyInput.value.trim();
+            if (key) {
+                apiKey = key;
+                localStorage.setItem('hf_api', key);
+                status.textContent = 'API Key נשמר! ✅';
+            }
+        }
+        
+        // ========== הקלטה ==========
+        function startRec(e) {
+            if (e) e.preventDefault();
+            if (recording) return;
+            
+            chunks = [];
+            recording = true;
+            startTime = Date.now();
+            micBtn.classList.add('recording');
+            status.textContent = 'מקליט... זמזם! 🎵';
+            timer.style.display = 'block';
+            errorBox.classList.remove('show');
+            results.classList.remove('show');
+            
+            navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream) {
+                ctx = new (window.AudioContext || window.webkitAudioContext)();
+                mic = ctx.createMediaStreamSource(stream);
+                analyser = ctx.createAnalyser();
+                analyser.fftSize = 2048;
+                mic.connect(analyser);
+                
+                var mime = '';
+                var types = ['audio/webm', 'audio/webm;codecs=opus', 'audio/mp4'];
+                for (var i = 0; i < types.length; i++) {
+                    if (MediaRecorder.isTypeSupported(types[i])) { mime = types[i]; break; }
+                }
+                
+                if (mime && window.MediaRecorder) {
+                    recorder = new MediaRecorder(stream, {mimeType: mime});
+                    recorder.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
+                    recorder.start(100);
+                }
+                
+                var bufLen = analyser.frequencyBinCount;
+                var dataArr = new Uint8Array(bufLen);
+                
+                function draw() {
+                    if (!recording) return;
+                    analyser.getByteFrequencyDa
