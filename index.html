@@ -1,481 +1,240 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>HumFinder - זיהוי שירים</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #fff;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            padding: 30px 0 20px;
-        }
-        
-        .logo {
-            font-size: 2.5em;
-            font-weight: 800;
-            background: linear-gradient(45deg, #e94560, #ff6b6b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .subtitle {
-            color: #a0a0a0;
-            margin-top: 8px;
-            font-size: 1em;
-        }
-        
-        .card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 15px 0;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .mode-btns {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .mode-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.05);
-            color: #aaa;
-            font-size: 0.95em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .mode-btn.active {
-            background: linear-gradient(135deg, #e94560, #ff6b6b);
-            color: white;
-            border-color: transparent;
-        }
-        
-        .api-box {
-            display: none;
-            margin-bottom: 20px;
-        }
-        
-        .api-box.show {
-            display: block;
-        }
-        
-        .api-input {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.3);
-            color: #fff;
-            font-size: 0.95em;
-            margin-bottom: 10px;
-        }
-        
-        .api-input:focus {
-            outline: none;
-            border-color: #e94560;
-        }
-        
-        .save-btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            background: linear-gradient(135deg, #e94560, #ff6b6b);
-            color: white;
-            font-weight: 600;
-            font-size: 0.95em;
-            cursor: pointer;
-        }
-        
-        .mic-wrap {
-            text-align: center;
-            padding: 20px 0;
-        }
-        
-        .mic-btn {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(145deg, #e94560, #c73e54);
-            color: white;
-            font-size: 3em;
-            cursor: pointer;
-            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4);
-            transition: all 0.3s;
-            -webkit-touch-callout: none;
-            user-select: none;
-        }
-        
-        .mic-btn.recording {
-            animation: pulse 1.2s infinite;
-            background: linear-gradient(145deg, #ff6b6b, #ee5a6f);
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7); }
-            70% { box-shadow: 0 0 0 30px rgba(233, 69, 96, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0); }
-        }
-        
-        .status {
-            margin-top: 15px;
-            font-size: 1.1em;
-            color: #ccc;
-            min-height: 25px;
-        }
-        
-        .timer {
-            font-size: 1.6em;
-            font-weight: 700;
-            color: #e94560;
-            margin-top: 8px;
-            display: none;
-        }
-        
-        .viz {
-            width: 100%;
-            height: 100px;
-            margin: 15px 0;
-            border-radius: 12px;
-            background: rgba(0,0,0,0.3);
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 30px;
-        }
-        
-        .loading.show {
-            display: block;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(233, 69, 96, 0.2);
-            border-top-color: #e94560;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .results {
-            display: none;
-            margin-top: 20px;
-        }
-        
-        .results.show {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .song-card {
-            background: linear-gradient(135deg, rgba(233,69,96,0.15), rgba(15,52,96,0.2));
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(233,69,96,0.2);
-        }
-        
-        .song-title {
-            font-size: 1.4em;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        
-        .song-artist {
-            color: #e94560;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-        
-        .match-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        
-        .match-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #e94560, #feca57);
-            border-radius: 3px;
-            transition: width 1s ease;
-        }
-        
-        .links {
-            display: flex;
-            gap: 8px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .link-btn {
-            padding: 8px 14px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.85em;
-            color: white;
-        }
-        
-        .link-btn.yt { background: #FF0000; }
-        .link-btn.sp { background: #1DB954; }
-        
-        .retry-btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.05);
-            color: white;
-            font-weight: 600;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-        
-        .error {
-            display: none;
-            background: rgba(255,71,87,0.1);
-            border: 1px solid rgba(255,71,87,0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            color: #ff6b81;
-        }
-        
-        .error.show {
-            display: block;
-        }
-        
-        .tips {
-            background: rgba(254,202,87,0.08);
-            border-right: 3px solid #feca57;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 0.9em;
-            color: #ddd;
-        }
-        
-        .tips strong {
-            color: #feca57;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            color: #555;
-            font-size: 0.85em;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <div class="logo">🎵 HumFinder</div>
-            <div class="subtitle">זמזם שיר – נזהה אותו</div>
-        </header>
-        
-        <div class="card">
-            <div class="mode-btns">
-                <button class="mode-btn active" id="btnLocal" onclick="setMode('local')">🎵 מקומי</button>
-                <button class="mode-btn" id="btnAPI" onclick="setMode('api')">🌐 API</button>
-            </div>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>HumFinder - זיהוי שירים</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
             
-            <div class="api-box" id="apiBox">
-                <input type="text" class="api-input" id="apiKeyInput" placeholder="API Key מ-AudD...">
-                <button class="save-btn" onclick="saveApiKey()">שמור API Key</button>
-            </div>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+                min-height: 100vh;
+                color: #fff;
+            }
             
-            <div class="tips">
-                <strong>💡 טיפ:</strong> התחל עם מצב מקומי – זה עובד בלי אינטרנט! זמזם Happy Birthday או Hava Nagila.
-            </div>
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
             
-            <div class="mic-wrap">
-                <button class="mic-btn" id="micBtn" ontouchstart="startRec(event)" ontouchend="stopRec(event)" onmousedown="startRec(event)" onmouseup="stopRec(event)" onmouseleave="stopRec(event)">🎤</button>
+            header {
+                text-align: center;
+                padding: 30px 0;
+            }
+            
+            .logo {
+                font-size: 2.5em;
+                font-weight: 800;
+                background: linear-gradient(45deg, #e94560, #ff6b6b);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            
+            .card {
+                background: rgba(255,255,255,0.05);
+                border-radius: 20px;
+                padding: 25px;
+                margin: 15px 0;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .mic-btn {
+                width: 140px;
+                height: 140px;
+                border-radius: 50%;
+                border: none;
+                background: linear-gradient(145deg, #e94560, #c73e54);
+                color: white;
+                font-size: 3em;
+                cursor: pointer;
+                display: block;
+                margin: 20px auto;
+                box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4);
+            }
+            
+            .mic-btn.recording {
+                animation: pulse 1.2s infinite;
+            }
+            
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7); }
+                70% { box-shadow: 0 0 0 30px rgba(233, 69, 96, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0); }
+            }
+            
+            .status {
+                text-align: center;
+                font-size: 1.1em;
+                color: #ccc;
+                margin: 15px 0;
+            }
+            
+            .result {
+                display: none;
+                background: linear-gradient(135deg, rgba(233,69,96,0.15), rgba(15,52,96,0.2));
+                border-radius: 16px;
+                padding: 20px;
+                margin-top: 20px;
+                border: 1px solid rgba(233,69,96,0.2);
+            }
+            
+            .result.show { display: block; }
+            
+            .song-title { font-size: 1.5em; font-weight: 700; }
+            .song-artist { color: #e94560; font-size: 1.1em; margin-top: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <div class="logo">🎵 HumFinder</div>
+            </header>
+            
+            <div class="card">
+                <button class="mic-btn" id="micBtn">🎤</button>
                 <div class="status" id="status">לחץ והחזק לזמזום</div>
-                <div class="timer" id="timer">0.0s</div>
-            </div>
-            
-            <canvas class="viz" id="viz"></canvas>
-            
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div style="color:#e94560">מעבד...</div>
-            </div>
-            
-            <div class="error" id="errorBox">
-                <span id="errorText"></span>
-            </div>
-            
-            <div class="results" id="results">
-                <div id="resultsList"></div>
-                <button class="retry-btn" onclick="reset()">🔄 נסה שוב</button>
+                
+                <div class="result" id="result">
+                    <div class="song-title" id="songTitle"></div>
+                    <div class="song-artist" id="songArtist"></div>
+                </div>
             </div>
         </div>
         
-        <footer>
-            <p>HumFinder © 2026 | זיהוי מקומי + API</p>
-        </footer>
-    </div>
-
-    <script>
-        // ========== מאגר שירים מקומי ==========
-        var DB = [
-            {t:"Happy Birthday",a:"מסורתי",p:[264,264,297,264,352,330,264,264,297,264,396,352,264,264,528,440,352,330,297,466,466,440,352,396,352],n:["C4","C4","D4","C4","F4","E4","C4","C4","D4","C4","G4","F4","C4","C4","C5","A4","F4","E4","D4","A#4","A#4","A4","F4","G4","F4"],tp:100},
-            {t:"Twinkle Twinkle",a:"Mozart",p:[262,262,392,392,440,440,392,349,349,330,330,294,294,262,392,392,349,349,330,330,294,392,392,349,349,330,330,294],n:["C4","C4","G4","G4","A4","A4","G4","F4","F4","E4","E4","D4","D4","C4","G4","G4","F4","F4","E4","E4","D4","G4","G4","F4","F4","E4","E4","D4"],tp:120},
-            {t:"Hava Nagila",a:"עממי ישראלי",p:[392,440,494,523,494,440,392,440,494,523,587,523,494,440,392,392,440,494,523,494,440,392,330,349,392,440,392,349,330,294,330,349,392,440,494,523,587,659,587,523,494,440,392],n:["G4","A4","B4","C5","B4","A4","G4","A4","B4","C5","D5","C5","B4","A4","G4","G4","A4","B4","C5","B4","A4","G4","E4","F4","G4","A4","G4","F4","E4","D4","E4","F4","G4","A4","B4","C5","D5","E5","D5","C5","B4","A4","G4"],tp:130},
-            {t:"Let It Be",a:"The Beatles",p:[262,294,330,262,392,349,330,294,262,294,330,262,440,392,349,330,294,262,294,330,349,330,294,262,294,330,349,392,440,392,349,330],n:["C4","D4","E4","C4","G4","F4","E4","D4","C4","D4","E4","C4","A4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","D4","E4","F4","G4","A4","G4","F4","E4"],tp:76},
-            {t:"Yesterday",a:"The Beatles",p:[330,349,392,440,392,349,330,294,262,247,262,294,330,349,330,294,330,349,392,440,392,349,330,349,392,440,494,523,494,440,392,349],n:["E4","F4","G4","A4","G4","F4","E4","D4","C4","B3","C4","D4","E4","F4","E4","D4","E4","F4","G4","A4","G4","F4","E4","F4","G4","A4","B4","C5","B4","A4","G4","F4"],tp:90},
-            {t:"Imagine",a:"John Lennon",p:[262,294,330,349,330,294,262,247,220,247,262,294,330,349,392,349,330,294,262,294,330,349,330,294,262,247,262,294,330,349,330,294],n:["C4","D4","E4","F4","E4","D4","C4","B3","A3","B3","C4","D4","E4","F4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","B3","C4","D4","E4","F4","E4","D4"],tp:75},
-            {t:"Despacito",a:"Luis Fonsi",p:[392,440,494,523,587,523,494,440,392,440,494,523,587,659,587,523,494,440,392,440,494,523,587,523,494,440,392,349,330,349,392,440],n:["G4","A4","B4","C5","D5","C5","B4","A4","G4","A4","B4","C5","D5","E5","D5","C5","B4","A4","G4","A4","B4","C5","D5","C5","B4","A4","G4","F4","E4","F4","G4","A4"],tp:89},
-            {t:"Hatikvah",a:"המנון ישראל",p:[262,294,330,349,330,294,262,247,220,247,262,294,330,349,330,294,262,294,330,349,392,349,330,294,262,294,330,294,262,247,262],n:["C4","D4","E4","F4","E4","D4","C4","B3","A3","B3","C4","D4","E4","F4","E4","D4","C4","D4","E4","F4","G4","F4","E4","D4","C4","D4","E4","D4","C4","B3","C4"],tp:80},
-            {t:"Yerushalayim",a:"נעמי שמר",p:[330,349,392,440,392,349,330,294,330,349,392,440,494,440,392,349,330,349,392,440,392,349,330,294,262,294,330,349,330,294,262,247],n:["E4","F4","G4","A4","G4","F4","E4","D4","E4","F4","G4","A4","B4","A4","G4","F4","E4","F4","G4","A4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","B3"],tp:72},
-            {t:"Für Elise",a:"Beethoven",p:[330,311,330,311,330,247,294,262,220,262,330,440,415,440,330,311,330,311,330,247,294,262,220,262,330,440,415,440],n:["E4","D#4","E4","D#4","E4","B3","D4","C4","A3","C4","E4","A4","G#4","A4","E4","D#4","E4","D#4","E4","B3","D4","C4","A3","C4","E4","A4","G#4","A4"],tp:70},
-            {t:"Ode to Joy",a:"Beethoven",p:[330,330,349,392,392,349,330,294,262,262,294,330,330,294,294,330,330,349,392,392,349,330,294,262,262,294,330,294,262,262],n:["E4","E4","F4","G4","G4","F4","E4","D4","C4","C4","D4","E4","E4","D4","D4","E4","E4","F4","G4","G4","F4","E4","D4","C4","C4","D4","E4","D4","C4","C4"],tp:120},
-            {t:"Jingle Bells",a:"James Pierpont",p:[330,330,330,330,330,330,330,392,262,294,330,349,349,349,349,349,330,330,330,294,294,330,294,392],n:["E4","E4","E4","E4","E4","E4","E4","G4","C4","D4","E4","F4","F4","F4","F4","F4","E4","E4","E4","D4","D4","E4","D4","G4"],tp:140},
-            {t:"Bella Ciao",a:"איטלקי",p:[330,349,392,440,392,349,330,294,330,349,392,440,494,440,392,349,330,349,392,440,392,349,330,294,262,294,330,349,330,294,262,247],n:["E4","F4","G4","A4","G4","F4","E4","D4","E4","F4","G4","A4","B4","A4","G4","F4","E4","F4","G4","A4","G4","F4","E4","D4","C4","D4","E4","F4","E4","D4","C4","B3"],tp:125},
-            {t:"Smoke on Water",a:"Deep Purple",p:[392,466,523,392,466,523,392,466,523,554,587,554,523,466,392],n:["G4","A#4","C5","G4","A#4","C5","G4","A#4","C5","C#5","D5","C#5","C5","A#4","G4"],tp:110},
-            {t:"Seven Nation Army",a:"White Stripes",p:[330,330,349,330,294,262,392,392,349,330,294,262,330,330,349,330],n:["E4","E4","F4","E4","D4","C4","G4","G4","F4","E4","D4","C4","E4","E4","F4","E4"],tp:120},
-            {t:"Eye of the Tiger",a:"Survivor",p:[262,294,330,392,330,294,262,294,330,392,440,392,330,294,262,294],n:["C4","D4","E4","G4","E4","D4","C4","D4","E4","G4","A4","G4","E4","D4","C4","D4"],tp:109},
-            {t:"We Will Rock You",a:"Queen",p:[330,330,330,392,392,440,440,392,349,349,330,330,294,294,330,330],n:["E4","E4","E4","G4","G4","A4","A4","G4","F4","F4","E4","E4","D4","D4","E4","E4"],tp:81},
-            {t:"Shape of You",a:"Ed Sheeran",p:[330,349,330,294,262,294,330,349,392,349,330,294,330,349,330,294],n:["E4","F4","E4","D4","C4","D4","E4","F4","G4","F4","E4","D4","E4","F4","E4","D4"],tp:96},
-            {t:"Bad Romance",a:"Lady Gaga",p:[330,330,392,392,440,440,392,349,349,330,330,294,294,330,330,392],n:["E4","E4","G4","G4","A4","A4","G4","F4","F4","E4","E4","D4","D4","E4","E4","G4"],tp:119},
-            {t:"YMCA",a:"Village People",p:[392,392,330,330,262,262,392,392,330,330,262,262,294,294,330,349],n:["G4","G4","E4","E4","C4","C4","G4","G4","E4","E4","C4","C4","D4","D4","E4","F4"],tp:127}
-        ];
-        
-        // ========== משתנים ==========
-        var ctx = null;
-        var analyser = null;
-        var mic = null;
-        var recorder = null;
-        var chunks = [];
-        var recording = false;
-        var startTime = 0;
-        var animId = null;
-        var mode = 'local';
-        var apiKey = localStorage.getItem('hf_api') || '';
-        
-        // ========== אלמנטים ==========
-        var micBtn = document.getElementById('micBtn');
-        var status = document.getElementById('status');
-        var timer = document.getElementById('timer');
-        var viz = document.getElementById('viz');
-        var vctx = viz.getContext('2d');
-        var loading = document.getElementById('loading');
-        var results = document.getElementById('results');
-        var resultsList = document.getElementById('resultsList');
-        var errorBox = document.getElementById('errorBox');
-        var errorText = document.getElementById('errorText');
-        var apiBox = document.getElementById('apiBox');
-        var apiKeyInput = document.getElementById('apiKeyInput');
-        
-        // ========== אתחול ==========
-        function init() {
-            viz.width = viz.offsetWidth;
-            viz.height = viz.offsetHeight;
-            if (apiKey) apiKeyInput.value = apiKey;
-        }
-        
-        // ========== מצב ==========
-        function setMode(m) {
-            mode = m;
-            document.getElementById('btnLocal').classList.toggle('active', m === 'local');
-            document.getElementById('btnAPI').classList.toggle('active', m === 'api');
-            apiBox.classList.toggle('show', m === 'api');
-        }
-        
-        function saveApiKey() {
-            var key = apiKeyInput.value.trim();
-            if (key) {
-                apiKey = key;
-                localStorage.setItem('hf_api', key);
-                status.textContent = 'API Key נשמר! ✅';
+        <script>
+            // מאגר שירים
+            var SONGS = [
+                {title: "Happy Birthday", artist: "מסורתי", 
+                 pattern: [264,264,297,264,352,330,264,264,297,264,396,352]},
+                {title: "Hava Nagila", artist: "עממי ישראלי",
+                 pattern: [392,440,494,523,494,440,392,440,494,523,587,523]},
+                {title: "Let It Be", artist: "The Beatles",
+                 pattern: [262,294,330,262,392,349,330,294,262,294,330,262]}
+            ];
+            
+            var micBtn = document.getElementById('micBtn');
+            var status = document.getElementById('status');
+            var result = document.getElementById('result');
+            var songTitle = document.getElementById('songTitle');
+            var songArtist = document.getElementById('songArtist');
+            
+            var isRecording = false;
+            var audioContext, analyser, microphone;
+            var recordedFreqs = [];
+            
+            micBtn.addEventListener('mousedown', startRecording);
+            micBtn.addEventListener('mouseup', stopRecording);
+            micBtn.addEventListener('touchstart', function(e) { e.preventDefault(); startRecording(); });
+            micBtn.addEventListener('touchend', function(e) { e.preventDefault(); stopRecording(); });
+            
+            function startRecording() {
+                if (isRecording) return;
+                isRecording = true;
+                recordedFreqs = [];
+                micBtn.classList.add('recording');
+                status.textContent = 'מקליט... זמזם!';
+                result.classList.remove('show');
+                
+                navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    microphone = audioContext.createMediaStreamSource(stream);
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 2048;
+                    microphone.connect(analyser);
+                    
+                    var dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    
+                    function analyze() {
+                        if (!isRecording) return;
+                        analyser.getByteFrequencyData(dataArray);
+                        
+                        var maxVal = 0, maxIndex = 0;
+                        for (var i = 0; i < dataArray.length / 2; i++) {
+                            if (dataArray[i] > maxVal) { maxVal = dataArray[i]; maxIndex = i; }
+                        }
+                        var freq = maxIndex * audioContext.sampleRate / (dataArray.length * 2);
+                        if (freq > 80 && freq < 1200) recordedFreqs.push(Math.round(freq));
+                        
+                        requestAnimationFrame(analyze);
+                    }
+                    analyze();
+                });
             }
-        }
-        
-        // ========== הקלטה ==========
-        function startRec(e) {
-            if (e) e.preventDefault();
-            if (recording) return;
             
-            chunks = [];
-            recording = true;
-            startTime = Date.now();
-            micBtn.classList.add('recording');
-            status.textContent = 'מקליט... זמזם! 🎵';
-            timer.style.display = 'block';
-            errorBox.classList.remove('show');
-            results.classList.remove('show');
-            
-            navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream) {
-                ctx = new (window.AudioContext || window.webkitAudioContext)();
-                mic = ctx.createMediaStreamSource(stream);
-                analyser = ctx.createAnalyser();
-                analyser.fftSize = 2048;
-                mic.connect(analyser);
+            function stopRecording() {
+                if (!isRecording) return;
+                isRecording = false;
+                micBtn.classList.remove('recording');
+                status.textContent = 'מעבד...';
                 
-                var mime = '';
-                var types = ['audio/webm', 'audio/webm;codecs=opus', 'audio/mp4'];
-                for (var i = 0; i < types.length; i++) {
-                    if (MediaRecorder.isTypeSupported(types[i])) { mime = types[i]; break; }
+                if (microphone) microphone.disconnect();
+                
+                setTimeout(function() {
+                    identifySong();
+                }, 500);
+            }
+            
+            function identifySong() {
+                if (recordedFreqs.length < 5) {
+                    status.textContent = 'לא נקלט מספיק. נסה שוב.';
+                    return;
                 }
                 
-                if (mime && window.MediaRecorder) {
-                    recorder = new MediaRecorder(stream, {mimeType: mime});
-                    recorder.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
-                    recorder.start(100);
+                var bestMatch = null;
+                var bestScore = 0;
+                
+                for (var i = 0; i < SONGS.length; i++) {
+                    var score = comparePatterns(recordedFreqs, SONGS[i].pattern);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = SONGS[i];
+                    }
                 }
                 
-                var bufLen = analyser.frequencyBinCount;
-                var dataArr = new Uint8Array(bufLen);
+                if (bestMatch && bestScore > 15) {
+                    songTitle.textContent = bestMatch.title;
+                    songArtist.textContent = bestMatch.artist;
+                    result.classList.add('show');
+                    status.textContent = 'זוהה! 🎉';
+                } else {
+                    status.textContent = 'לא זוהה. נסה שיר אחר.';
+                }
+            }
+            
+            function comparePatterns(rec, pat) {
+                var norm = function(arr) {
+                    var min = Math.min.apply(null, arr);
+                    var max = Math.max.apply(null, arr);
+                    if (max === min) return arr.map(function() { return 0; });
+                    return arr.map(function(v) { return (v - min) / (max - min); });
+                };
                 
-                function draw() {
-                    if (!recording) return;
-                    analyser.getByteFrequencyDa
+                var nRec = norm(rec);
+                var nPat = norm(pat);
+                var matches = 0, total = 0;
+                
+                for (var i = 0; i < nPat.length; i += 2) {
+                    var best = Infinity;
+                    for (var j = 0; j < nRec.length; j++) {
+                        var diff = Math.abs(nPat[i] - nRec[j]);
+                        if (diff < best) best = diff;
+                    }
+                    if (best < 0.4) matches++;
+                    total++;
+                }
+                
+                return (matches / total) * 100;
+            }
+        </script>
+    </body>
+    </html>
+''')
+
+with open('/mnt/agents/output/humfinder_clean.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print("✅ Clean version created!")
+print(f"📁 Size: {len(html):,} chars")
